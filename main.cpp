@@ -174,6 +174,17 @@ int main() {
                                  std::lock_guard<std::mutex> lock(counter_mutex);
                                  sample_counter++;
                          }
+                        else {
+                                // Save configurations that don't meet the condition for inspection
+                                std::ofstream out_rejected("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/rejected_confs/rejected_configuration_"  +
+                                                std::to_string(thread_num) + "_z=" + std::to_string(polymer[thread_num][0][2]) + ".txt");
+
+                                for (int i = 0; i < pol_length; i++) {
+                                        for (int j = 0; j < 3; j++) {
+                                                out_rejected << polymer[thread_num][i][j] << '\n';
+                                         }
+                                 }
+                         }
                 });
          }
 
