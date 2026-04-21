@@ -1,5 +1,6 @@
 // Created by Joris on 09/07/2018.
-//Modified by Capucine on 31/03/2025
+// Modified by Capucine on 31/03/2025
+// Modified by Alessandro on 01/04/2025
 //
 
 // This code performs an iterative Monte Carlo procedure to obtain a Maximum Entropy
@@ -26,7 +27,7 @@
 using namespace Eigen;
 
 //const int number_of_threads = 36;
-const int number_of_threads = 48;
+const int number_of_threads = 20;
 
 const double diameter = 6.4;
 const int length_cylinder = 21;
@@ -105,7 +106,7 @@ int main() {
         }
     }
     const int batch_size = number_of_threads;
-    const int total_batches = 1000;
+    const int total_batches = 100;
     int sample_counter = 0;
     std::mutex counter_mutex;
 
@@ -161,8 +162,13 @@ int main() {
         for (int thread_num = 0; thread_num < batch_size; thread_num++) {
                  write_threads.emplace_back([&, thread_num]() { // create a new thread and store it in the vector write_threads
                         if (polymer[thread_num][0][2] < 1000) {
+                        int my_id; 
+                        {
+                            std::lock_guard<std::mutex> lock(counter_mutex);
+                            my_id = sample_counter++ ;
+                        }    
                         std::ofstream out("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/final_confs/final_configuration_"  +
-                                        std::to_string(thread_num + sample_counter) + ".txt");
+                                        std::to_string(my_id) + ".txt");
 
                                 for (int i = 0; i < pol_length; i++) {
                                         for (int j = 0; j < 3; j++) {
@@ -171,13 +177,13 @@ int main() {
                                  }
 
                                  // Safely increment counter
-                                 std::lock_guard<std::mutex> lock(counter_mutex);
-                                 sample_counter++;
+                                 // std::lock_guard<std::mutex> lock(counter_mutex);
+                                 // sample_counter++;
                          }
                         else {
                                 // Save configurations that don't meet the condition for inspection
                                 std::ofstream out_rejected("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/rejected_confs/rejected_configuration_"  +
-                                                std::to_string(thread_num) + "_z=" + std::to_string(polymer[thread_num][0][2]) + ".txt");
+                                                std::to_string(my_id) + "_z=" + std::to_string(polymer[thread_num][0][2]) + ".txt");
 
                                 for (int i = 0; i < pol_length; i++) {
                                         for (int j = 0; j < 3; j++) {
