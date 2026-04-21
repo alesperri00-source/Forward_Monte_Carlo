@@ -181,9 +181,14 @@ int main() {
                                  // sample_counter++;
                          }
                         else {
+                                int rej_id;
+                                {
+                                    std::lock_guard<std::mutex> lock(counter_mutex);
+                                    rej_id = sample_counter++ ;
+                                }
                                 // Save configurations that don't meet the condition for inspection
                                 std::ofstream out_rejected("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/rejected_confs/rejected_configuration_"  +
-                                                std::to_string(my_id) + "_z=" + std::to_string(polymer[thread_num][0][2]) + ".txt");
+                                                std::to_string(rej_id) + "_z=" + std::to_string(polymer[thread_num][0][2]) + ".txt");
 
                                 for (int i = 0; i < pol_length; i++) {
                                         for (int j = 0; j < 3; j++) {
