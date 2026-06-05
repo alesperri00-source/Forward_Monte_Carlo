@@ -27,7 +27,7 @@
 using namespace Eigen;
 
 //const int number_of_threads = 36;
-const int number_of_threads = 20;
+const int number_of_threads = 36;
 
 const double diameter = 6.4;
 const int length_cylinder = 21;
@@ -93,7 +93,8 @@ int main() {
     std::ifstream couplings("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/energies_ccrescentus_wt_rep1.txt");
     for (int i = 0; i < pol_length; i++) {
         for (int j = 0; j < pol_length; j++) {
-            couplings >> Interaction_E[i][j];
+            // couplings >> Interaction_E[i][j];
+            Interaction_E[i][j] = 0.0; // Set to 0 to simulate a random polymer
         }
     }
     couplings.close();
@@ -140,7 +141,7 @@ int main() {
         std::cout << "Finished Burn-in "<< std::endl;
         
 
-        for (auto &&l : threads) l.join();
+        for (auto &&l : threads) l.join(); // wait untill all threads have finished burn-in before starting forward simulation
 
         // Forward simulation
         for (int l = 0; l < batch_size; l++) {
@@ -151,7 +152,7 @@ int main() {
         std::chrono::duration<double> elapsed3 = finish3 - start;
         std::cout << "Elapsed time: " << elapsed3.count() << " seconds\n";
         std::cout << "Finished forward "<< std::endl;
-        for (auto &&l : threads) l.join();
+        for (auto &&l : threads) l.join(); // wait until all threads have finished forward simulation before starting to write output files
 
         // Output configurations
         auto write_start = std::chrono::high_resolution_clock::now();
