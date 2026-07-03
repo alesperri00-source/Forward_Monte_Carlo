@@ -117,8 +117,14 @@ int main() {
 
         // Initialize polymers
         for (int l = 0; l < batch_size; l++) {
+            // print that tests if the initialization is not messing up
+            std::cout << "Before init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;
+
             initialize(polymer[l], pol_length, l);
+
+        std::cout << "After init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;            
         }
+
         std::cout << "Initialized monomer positions (thread 0):\n";
         for (int i = 0; i < 10; ++i) {
             std::cout << polymer[0][i].transpose() << std::endl;
