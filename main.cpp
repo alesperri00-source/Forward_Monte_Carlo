@@ -110,7 +110,7 @@ int main() {
         }
     }
     const int batch_size = number_of_threads;
-    const int total_batches = 100;
+    const int total_batches = 1;
     int sample_counter = 0;
     std::mutex counter_mutex;
 
