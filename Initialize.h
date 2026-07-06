@@ -40,6 +40,13 @@ void initialize(std::vector<Vector3i> &polymer, int pol_length, int thread_num){
     int x_i, y_i, z_i;
     Vector3i monomer;
     x_i=2; y_i=2; z_i=2;
+        // Reset only the current configuration/state
+        polymer.clear();
+        polymer.reserve(pol_length);
+
+        locations[thread_num].clear();
+        contacts[thread_num].clear();
+
     for (int i=0; i<pol_length; i++){
             if (i%4==0){x_i++;}
             else if (i%4==1){y_i++;}

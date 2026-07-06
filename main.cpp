@@ -118,6 +118,7 @@ int main() {
         // Initialize polymers
         for (int l = 0; l < batch_size; l++) {
             // print that tests if the initialization is not messing up
+
             std::cout << "Before init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;
 
             initialize(polymer[l], pol_length, l);
