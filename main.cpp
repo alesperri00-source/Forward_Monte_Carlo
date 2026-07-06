@@ -49,8 +49,8 @@ bool orient = 1; //orients the cell such that the origin is always in the left h
 
 std::vector< std::vector<double>> Interaction_E(pol_length, std::vector<double>(pol_length,0));
 
-std::uniform_real_distribution<double> unif(0.0,1.0);
-std::uniform_int_distribution<int> unimove(0,2);
+std::uniform_real_distribution<double> unif(0.0,1.0); 
+std::uniform_int_distribution<int> unimove(0,2); // three moves allowed
 std::uniform_int_distribution<int> unisite(0,pol_length-1);
 std::vector<std::vector<std::vector<double>>> total_contacts(number_of_threads, std::vector< std::vector<double>>(pol_length, std::vector<double>(pol_length, 0)));
 std::vector<std::vector<double>> final_contacts(pol_length, std::vector<double>(pol_length, 0));
@@ -61,6 +61,8 @@ void move(std::vector<Vector3i> &polymer,int thread_num, int m){ //performs a si
 
     action = unimove(gen);
     site = unisite(gen);
+    std::cout<<'Unisite'<<action<<std::endl;
+    //std::cout<<'Unisite'<<site<<std::endl;
     if (action==0){
         kink_move(polymer,site, thread_num,m);
     }
@@ -75,6 +77,7 @@ void move(std::vector<Vector3i> &polymer,int thread_num, int m){ //performs a si
 void run_burnin(int thread_num, int mc_moves) { //burns in the polymer configurations
     for (int m = 1; m < mc_moves; m++) {
         move(polymer[thread_num], thread_num, m);
+
     }
 }
 
