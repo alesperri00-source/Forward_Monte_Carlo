@@ -1,6 +1,6 @@
 // Created by Joris on 09/07/2018.
 // Modified by Capucine on 31/03/2025
-// Modified by Alessandro on 01/04/2025
+// Modified by Alessandro on 01/04/2026
 //
 
 // This code performs an iterative Monte Carlo procedure to obtain a Maximum Entropy
@@ -27,7 +27,7 @@
 using namespace Eigen;
 
 //const int number_of_threads = 36;
-const int number_of_threads = 36;
+const int number_of_threads = 40;
 
 const double diameter = 6.4;
 const int length_cylinder = 21;
@@ -61,8 +61,7 @@ void move(std::vector<Vector3i> &polymer,int thread_num, int m){ //performs a si
 
     action = unimove(gen);
     site = unisite(gen);
-    std::cout<<'Unisite'<<action<<std::endl;
-    //std::cout<<'Unisite'<<site<<std::endl;
+    std::cout<<'Unisite'<<site<<std::endl;
     if (action==0){
         kink_move(polymer,site, thread_num,m);
     }
