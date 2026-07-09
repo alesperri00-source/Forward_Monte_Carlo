@@ -27,7 +27,7 @@
 using namespace Eigen;
 
 //const int number_of_threads = 36;
-const int number_of_threads = 40;
+const int number_of_threads = 30;
 
 const double diameter = 6.4;
 const int length_cylinder = 21;
@@ -36,10 +36,10 @@ const int cap_length = 2;
 
 const int pol_length = 1620;
 
-const long int mc_moves_start = 3500000000;
+const long int mc_moves_start = 35000000;
 //const long int mc_moves_start = 2500;
 long int mc_moves;
-long int burn_in_time = 200000000;
+long int burn_in_time = 20000000;
 //const int burn_in_time = 200;
 
 std::vector<std::vector<Vector3i>> polymer(number_of_threads);
@@ -61,7 +61,7 @@ void move(std::vector<Vector3i> &polymer,int thread_num, int m){ //performs a si
 
     action = unimove(gen);
     site = unisite(gen);
-    std::cout<<'Unisite'<<site<<std::endl;
+    //std::cout<<'Unisite'<<site<<std::endl;
     if (action==0){
         kink_move(polymer,site, thread_num,m);
     }
@@ -109,24 +109,25 @@ int main() {
         }
     }
     const int batch_size = number_of_threads;
-    const int total_batches = 1;
+    const int total_batches = 100;
     int sample_counter = 0;
     std::mutex counter_mutex;
 
+
+    // Initialize polymers
+    for (int l = 0; l < batch_size; l++) {
+            initialize(polymer[l], pol_length, l);
+        }
 
     for (int batch = 0; batch < total_batches; batch++) {
         std::cout << "Starting batch " << batch + 1 << " / " << total_batches << std::endl;
 
         // Initialize polymers
-        for (int l = 0; l < batch_size; l++) {
-            // print that tests if the initialization is not messing up
-
-            std::cout << "Before init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;
-
-            initialize(polymer[l], pol_length, l);
-
-        std::cout << "After init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;            
-        }
+        // for (int l = 0; l < batch_size; l++) {
+        //     std::cout << "Before init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;
+        //     initialize(polymer[l], pol_length, l);
+        //     std::cout << "After init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;            
+        // }
 
         std::cout << "Initialized monomer positions (thread 0):\n";
         for (int i = 0; i < 10; ++i) {
