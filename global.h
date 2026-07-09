@@ -13,7 +13,7 @@
 
 extern const int pol_length;
 extern long int mc_moves;
-extern const int burn_in_time;
+extern long int burn_in_time;
 extern const int cap;
 
 //extern static std::mt19937_64 gen;

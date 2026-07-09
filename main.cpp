@@ -36,10 +36,10 @@ const int cap_length = 2;
 
 const int pol_length = 1620;
 
-const long int mc_moves_start = 25000000;
+const long int mc_moves_start = 3500000000;
 //const long int mc_moves_start = 2500;
 long int mc_moves;
-const int burn_in_time = 2000000;
+long int burn_in_time = 200000000;
 //const int burn_in_time = 200;
 
 std::vector<std::vector<Vector3i>> polymer(number_of_threads);
