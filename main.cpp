@@ -95,8 +95,8 @@ int main() {
     std::ifstream couplings("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/energies_ccrescentus_wt_rep1.txt");
     for (int i = 0; i < pol_length; i++) {
         for (int j = 0; j < pol_length; j++) {
-            // couplings >> Interaction_E[i][j];
-            Interaction_E[i][j] = 0.0; // Set to 0 to simulate a random polymer
+            couplings >> Interaction_E[i][j];
+            //Interaction_E[i][j] = 0.0; // Set to 0 to simulate a random polymer
         }
     }
     couplings.close();
@@ -109,7 +109,7 @@ int main() {
         }
     }
     const int batch_size = number_of_threads;
-    const int total_batches = 100;
+    const int total_batches = 1000;
     int sample_counter = 0;
     std::mutex counter_mutex;
 
