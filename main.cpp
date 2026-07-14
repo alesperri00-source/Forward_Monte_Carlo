@@ -54,13 +54,16 @@ std::uniform_int_distribution<int> unimove(0,2); // three moves allowed
 std::uniform_int_distribution<int> unisite(0,pol_length-1);
 std::vector<std::vector<std::vector<double>>> total_contacts(number_of_threads, std::vector< std::vector<double>>(pol_length, std::vector<double>(pol_length, 0)));
 std::vector<std::vector<double>> final_contacts(pol_length, std::vector<double>(pol_length, 0));
+std::vector<std::mt19937_64> generators(number_of_threads);
+const std::string base_path = "/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/";
+
 
 void move(std::vector<Vector3i> &polymer,int thread_num, int m){ //performs a single Monte Carlo step
     int action;
     int site;
 
-    action = unimove(gen);
-    site = unisite(gen);
+    action = unimove(generators[thread_num]);
+    site = unisite(generators[thread_num]);
     //std::cout<<'Unisite'<<site<<std::endl;
     if (action==0){
         kink_move(polymer,site, thread_num,m);
@@ -75,6 +78,7 @@ void move(std::vector<Vector3i> &polymer,int thread_num, int m){ //performs a si
 
 void run_burnin(int thread_num, int mc_moves) { //burns in the polymer configurations
     for (int m = 1; m < mc_moves; m++) {
+        // current_step[thread_num]+=1;
         move(polymer[thread_num], thread_num, m);
 
     }
@@ -90,7 +94,8 @@ int main() {
     auto start = std::chrono::high_resolution_clock::now();
     std::cout << "Started!" << std::endl;
 
-    mc_moves=mc_moves_start;
+    mc_moves = mc_moves_start;
+
     // Load interaction energies once
     std::ifstream couplings("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/energies_ccrescentus_wt_rep1.txt");
     for (int i = 0; i < pol_length; i++) {
@@ -109,15 +114,36 @@ int main() {
         }
     }
     const int batch_size = number_of_threads;
-    const int total_batches = 1000;
+    const int total_batches = 200;
     int sample_counter = 0;
     std::mutex counter_mutex;
 
+    time_t time_now = time(0);
+
+    for (int i = 0; i < number_of_threads; i++) { // one rng per thread! the seed is chosen with time(now) + number _of_current_thread
+        generators[i].seed(static_cast<unsigned long long>(time_now) + i);
+    }  
 
     // Initialize polymers
     for (int l = 0; l < batch_size; l++) {
             initialize(polymer[l], pol_length, l);
         }
+    
+    auto finish1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed1 = finish1 - start;
+    std::cout << "Elapsed time: " << elapsed1.count() << " seconds\n";
+    std::cout << "Finished Initializing "  << std::endl;  
+
+    // Run burn in once
+    std::vector<std::thread> threads(batch_size);
+    for (int l = 0; l < batch_size; l++) {
+         threads[l] = std::thread(run_burnin, l, burn_in_time);
+    }
+    auto finish2 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed2 = finish2 - start;
+    std::cout << "Elapsed time: " << elapsed2.count() << " seconds\n";
+    std::cout << "Finished Burn-in "<< std::endl;
+    for (auto &&l : threads) l.join(); // wait untill all threads have finished burn-in before starting forward simulation        
 
     for (int batch = 0; batch < total_batches; batch++) {
         std::cout << "Starting batch " << batch + 1 << " / " << total_batches << std::endl;
@@ -129,29 +155,22 @@ int main() {
         //     std::cout << "After init batch " << batch << ", thread " << l << ", size = " << polymer[l].size() << std::endl;            
         // }
 
-        std::cout << "Initialized monomer positions (thread 0):\n";
-        for (int i = 0; i < 10; ++i) {
-            std::cout << polymer[0][i].transpose() << std::endl;
-        }
-
-        
-        auto finish1 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed1 = finish1 - start;
-        std::cout << "Elapsed time: " << elapsed1.count() << " seconds\n";
-        std::cout << "Finished Initializing "  << std::endl;
-
+        // std::cout << "Initialized monomer positions (thread 0):\n";
+        // for (int i = 0; i < 10; ++i) {
+        //     std::cout << polymer[0][i].transpose() << std::endl;
+        // }
         // Burn-in
-        std::vector<std::thread> threads(batch_size);
-        for (int l = 0; l < batch_size; l++) {
-            threads[l] = std::thread(run_burnin, l, burn_in_time);
-        }
-        auto finish2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed2 = finish2 - start;
-        std::cout << "Elapsed time: " << elapsed2.count() << " seconds\n";
-        std::cout << "Finished Burn-in "<< std::endl;
+        // std::vector<std::thread> threads(batch_size);
+        // for (int l = 0; l < batch_size; l++) {
+        //     threads[l] = std::thread(run_burnin, l, burn_in_time);
+        // }
+        // auto finish2 = std::chrono::high_resolution_clock::now();
+        // std::chrono::duration<double> elapsed2 = finish2 - start;
+        // std::cout << "Elapsed time: " << elapsed2.count() << " seconds\n";
+        // std::cout << "Finished Burn-in "<< std::endl;
         
 
-        for (auto &&l : threads) l.join(); // wait untill all threads have finished burn-in before starting forward simulation
+        //for (auto &&l : threads) l.join(); // wait untill all threads have finished burn-in before starting forward simulation
 
         // Forward simulation
         for (int l = 0; l < batch_size; l++) {
@@ -173,13 +192,19 @@ int main() {
         for (int thread_num = 0; thread_num < batch_size; thread_num++) {
                  write_threads.emplace_back([&, thread_num]() { // create a new thread and store it in the vector write_threads
                         if (polymer[thread_num][0][2] < 1000) {
-                        int my_id; 
-                        {
-                            std::lock_guard<std::mutex> lock(counter_mutex);
-                            my_id = sample_counter++ ;
-                        }    
-                        std::ofstream out("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/final_confs/final_configuration_"  +
-                                        std::to_string(my_id) + ".txt");
+                        // int my_id; 
+                        // {
+                        //     std::lock_guard<std::mutex> lock(counter_mutex);
+                        //     my_id = sample_counter++ ;
+                        // }    
+                        // std::ofstream out("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Forward_Monte_Carlo/final_confs/final_configuration_"  +
+                                        // std::to_string(my_id) + ".txt");
+                        std::string filename = "configuration_batch" + std::to_string(batch) + "_thread" + std::to_string(thread_num) + ".txt";    
+                        std::ofstream out(base_path + "final_confs/final_configuration_" + filename);
+                        if (!out.is_open()) {
+                        std::cerr << "ERROR: could not open file: " << base_path + "final_confs/final_configuration_" + filename << "\n";
+                        return;
+                        }                                        
 
                                 for (int i = 0; i < pol_length; i++) {
                                         for (int j = 0; j < 3; j++) {
