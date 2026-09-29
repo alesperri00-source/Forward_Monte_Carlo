@@ -21,6 +21,7 @@ void kink_move(std::vector<Vector3i> &polymer, int site,int thread_num, int m){
         prop_move1 = polymer[site] + polymer[(site+2)%pol_length] - polymer[(site+1)%pol_length];
         if (accept_move(delta_E_other(polymer, site, pol_length, prop_move1,thread_num), thread_num)==1 && check_boundary_rest(prop_move1)==1 &&
                 check_orient_rest(site, polymer, prop_move1)==1){
+                accepted_moves[thread_num]++;
             //Throw away old contacts, at the same time update contact frequency map
             // for (auto elem : locations[thread_num].find({polymer[(site+1)%pol_length][0],polymer[(site+1)%pol_length][1],polymer[(site+1)%pol_length][2]})->second ){
             //     if (elem != (site+1)%pol_length){
@@ -69,6 +70,7 @@ void crankshaft_move(std::vector<Vector3i> &polymer, int site, int thread_num,in
         }
         if (accept_move(delta_E_crankshaft(pol_length, polymer, site, prop_move1, prop_move2,thread_num), thread_num)==1 && check_boundary_crankshaft(prop_move1, prop_move2)==1 &&
                 check_orient_crankshaft(site, polymer, prop_move1, prop_move2)==1){
+            accepted_moves[thread_num]++;
             //Throw away old contacts, at the same time update contact frequency map
             // for (auto elem : locations[thread_num].find({polymer[(site+1)%pol_length][0],polymer[(site+1)%pol_length][1],polymer[(site+1)%pol_length][2]})->second ){
             //     if (elem != (site+1)%pol_length){
@@ -138,6 +140,7 @@ void loop_move(std::vector<Vector3i> &polymer, int site, int thread_num, int m){
         prop_move1 = polymer[site] + rotated_vector;
         if (accept_move(delta_E_other(polymer, site, pol_length, prop_move1,thread_num), thread_num)==1 && check_boundary_rest(prop_move1)==1 &&
                 check_orient_rest(site, polymer, prop_move1)==1){
+            accepted_moves[thread_num]++;      
             //Throw away old contacts, at the same time update contact frequency map
             // for (auto elem : locations[thread_num].find({polymer[(site+1)%pol_length][0],polymer[(site+1)%pol_length][1],polymer[(site+1)%pol_length][2]})->second ){
             //     if (elem != (site+1)%pol_length){
