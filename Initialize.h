@@ -19,7 +19,14 @@ std::vector<std::unordered_map<std::vector<int>, std::vector<int>, vec_hash>> lo
 void initialize(std::vector<Vector3i> &polymer, int pol_length, int thread_num){
        int coordinate;
        std::ifstream configuration;
-       configuration.open ("/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Inverse_Monte_Carlo/sim_data/configuration_init_" +std::to_string(thread_num)+".txt");
+       std::string filename = "/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Inverse_Monte_Carlo/sim_data/configuration_init_" +std::to_string(thread_num)+".txt";
+       configuration.open(filename);
+
+        if (!configuration.is_open()) {
+        std::cerr << "ERROR: cannot open " << filename << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+    
        for(int i = 0; i < pol_length; i++){
            Vector3i monomer;
            for(int j = 0; j < 3; j++){
@@ -36,6 +43,7 @@ void initialize(std::vector<Vector3i> &polymer, int pol_length, int thread_num){
            else { locations[thread_num][{monomer(0),monomer(1),monomer(2)}] = {i}; }
        }
     configuration.close();
+    std::cout << "Finished reading configurations\n";
 
     // int x_i, y_i, z_i;
     // Vector3i monomer;
