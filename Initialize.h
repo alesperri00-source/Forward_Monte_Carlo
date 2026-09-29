@@ -19,7 +19,7 @@ std::vector<std::unordered_map<std::vector<int>, std::vector<int>, vec_hash>> lo
 void initialize(std::vector<Vector3i> &polymer, int pol_length, int thread_num){
        int coordinate;
        std::ifstream configuration;
-       std::string filename = "/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Inverse_Monte_Carlo/sim_data/configuration_init_" +std::to_string(thread_num)+".txt";
+       std::string filename = "/home/alessandro/alessandro/PhD_Alessandro/first_project/MaxEnt-Chromosome-Caulobacter-0.1/Inverse_Monte_Carlo/sim_data/final_confs/configuration_init_" +std::to_string(thread_num)+".txt";
        configuration.open(filename);
 
         if (!configuration.is_open()) {
