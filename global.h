@@ -33,6 +33,9 @@ extern const int number_of_threads;
 extern std::vector<std::vector<int>> contacts_list;
 extern std::vector<std::vector<int>> prop_contacts_list;
 
+extern std::vector<long long> accepted_moves;
+extern std::vector<long long> attempted_moves;
+
 extern std::vector< std::vector<double>> Interaction_E;
 
 extern bool boundary_cond;
